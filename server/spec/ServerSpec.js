@@ -17,7 +17,7 @@ describe('Node Server Request Listener Function', function() {
     var req = new stubs.request('/classes/messages', 'GET');
     var res = new stubs.response();
 
-    handler.requestHandler(req, res);
+    handler(req, res);
 
     expect(res._responseCode).to.equal(200);
     expect(res._ended).to.equal(true);
@@ -27,7 +27,7 @@ describe('Node Server Request Listener Function', function() {
     var req = new stubs.request('/classes/messages', 'GET');
     var res = new stubs.response();
 
-    handler.requestHandler(req, res);
+    handler(req, res);
 
     expect(JSON.parse.bind(this, res._data)).to.not.throw();
     expect(res._ended).to.equal(true);
@@ -37,7 +37,7 @@ describe('Node Server Request Listener Function', function() {
     var req = new stubs.request('/classes/messages', 'GET');
     var res = new stubs.response();
 
-    handler.requestHandler(req, res);
+    handler(req, res);
 
     var parsedBody = JSON.parse(res._data);
     expect(parsedBody).to.be.an('object');
@@ -48,7 +48,7 @@ describe('Node Server Request Listener Function', function() {
     var req = new stubs.request('/classes/messages', 'GET');
     var res = new stubs.response();
 
-    handler.requestHandler(req, res);
+    handler(req, res);
 
     var parsedBody = JSON.parse(res._data);
     expect(parsedBody).to.have.property('results');
@@ -64,7 +64,7 @@ describe('Node Server Request Listener Function', function() {
     var req = new stubs.request('/classes/messages', 'POST', stubMsg);
     var res = new stubs.response();
 
-    handler.requestHandler(req, res);
+    handler(req, res);
 
     // Expect 201 Created response status
     expect(res._responseCode).to.equal(201);
@@ -83,7 +83,7 @@ describe('Node Server Request Listener Function', function() {
     var req = new stubs.request('/classes/messages', 'POST', stubMsg);
     var res = new stubs.response();
 
-    handler.requestHandler(req, res);
+    handler(req, res);
 
     expect(res._responseCode).to.equal(201);
 
@@ -91,7 +91,7 @@ describe('Node Server Request Listener Function', function() {
     req = new stubs.request('/classes/messages', 'GET');
     res = new stubs.response();
 
-    handler.requestHandler(req, res);
+    handler(req, res);
 
     expect(res._responseCode).to.equal(200);
     var messages = JSON.parse(res._data).results;
@@ -106,7 +106,7 @@ describe('Node Server Request Listener Function', function() {
     var req = new stubs.request('/arglebargle', 'GET');
     var res = new stubs.response();
 
-    handler.requestHandler(req, res);
+    handler(req, res);
 
     // Wait for response to return and then check status code
     waitForThen(
@@ -115,5 +115,57 @@ describe('Node Server Request Listener Function', function() {
         expect(res._responseCode).to.equal(404);
       });
   });
+//NEW TESTS WRITTEN BY US FOR BASIC REQS:
+  it('Should 200 when sending an OPTIONS request, and return headers', function() {
+    
+    var req = new stubs.request('/classes/messages', 'OPTIONS');
+    var res = new stubs.response();
+
+    handler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    expect(res._headers).to.be.an('object');
+    expect(res._ended).to.equal(true);
+  });
+
+  it('Should send a 404 Error when given a non-existent Request Method', function() {
+    
+    var req = new stubs.request('/classes/messages', 'ARGLEBARGLE');
+    var res = new stubs.response();
+
+    handler(req, res);
+
+    waitForThen(
+      function() { return res._ended; },
+      function() {
+        expect(res._responseCode).to.equal(404);
+      });
+  });
+
+  it('Should create a timestamp for all POSTs', function() {
+    var stubMsg = {
+      username: 'Jono',
+      message: 'Do my bidding!'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler(req, res);
+
+    expect(res._responseCode).to.equal(201);
+
+      // Now if we request the log for that room the message we posted should be there:
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+
+    handler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data).results;
+    expect(messages.length).to.be.above(0);
+    expect(!!messages[0].createdAt).to.equal(true);
+    expect(res._ended).to.equal(true);
+  });
+
 
 });

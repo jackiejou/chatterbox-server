@@ -73,5 +73,56 @@ describe('server', function() {
     });
   });
 
+//NEW TESTS FOR BASIC REQS:
+
+
+  it('Should 200 when sending an OPTIONS request, and return headers', function() {
+    var requestParams = {method: 'OPTIONS',
+      url: 'http://127.0.0.1:3000/classes/messages'
+    };
+
+    request(requestParams, function(error, response, body) {
+      expect(response.statusCode).to.equal(200);
+      expect(response.headers).to.be.an('object');
+      done();
+    });
+  });
+
+  it('Should send a 404 Error when given a non-existent Request Method', function() {
+    var requestParams = {method: 'ARGLEBARGLE',
+      url: 'http://127.0.0.1:3000/classes/messages'
+    };
+
+    request(requestParams, function(error, response, body) {
+      expect(response.statusCode).to.equal(404);
+      expect(response.headers).to.be.an('object');
+      done();
+    });
+  });
+
+  it('Should create a timestamp for all POSTs', function() {
+    var requestParams = {method: 'POST',
+      url: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        message: 'Do my bidding!'}
+    };
+
+    request(requestParams, function(error, response, body) {
+      expect(response.statusCode).to.equal(201);
+      expect(response.headers).to.be.an('object');
+      done();
+    });
+
+    request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+      expect(response.statusCode).to.equal(200);
+      expect(response.headers).to.be.an('object');
+      var messages = JSON.parse(body).results;
+      expect(!!messages[0].createdAt).to.equal(true);
+      done();
+    });
+    
+  });
+
 
 });

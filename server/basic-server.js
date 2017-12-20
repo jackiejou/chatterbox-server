@@ -1,7 +1,7 @@
 /* Import node's http module: */
 var http = require('http');
 var handleRequest = require('./request-handler.js');
-var url = require('url')
+var url = require('url');
 
 // Every server needs to listen on a port with a unique number. The
 // standard port for HTTP servers is port 80, but that port is
@@ -27,8 +27,10 @@ let routes = {'/classes/messages': handleRequest};
 var server = http.createServer(function(request, response) {
   let route = routes[url.parse(request.url).pathname];
   if (route) {
+    console.log('Route is this!: ', route);
     route(request, response);
   } else {
+    console.log('Route is here!: ', route);
     handleRequest.sendResponse(response, 'not found', 404);
   }
 });

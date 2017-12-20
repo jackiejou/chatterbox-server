@@ -18,7 +18,7 @@ var headers = {
   'access-control-max-age': 10, // Seconds.
   'Content-Type': 'application/json'
 };
-let messages = [{text:'sadfas', username:'sdfadsf'}];
+let messages = [];
 
 let sendResponse = function(response, data, statusCode = 200) {
   response.writeHead(statusCode, headers);
@@ -27,16 +27,15 @@ let sendResponse = function(response, data, statusCode = 200) {
 
 let getData = function(request, callback) {
   var body = '';
-  statusCode = 201;
   request.on('data', (chunk) => {
     body += chunk;
   });
   request.on('end', () => {
     callback(JSON.parse(body));
   });
-}
+};
 
-module.exports = function(request, response) {
+module.exports = function (request, response) {
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -46,18 +45,6 @@ module.exports = function(request, response) {
   // Documentation for both request and response can be found in the HTTP section at
   // http://nodejs.org/documentation/api/
   //
-
-  // let {method, url} = request;
-  //
-  // if (!routes.includes(url)) {
-  //   response.statusCode = 404;
-  //   response.end();
-  // }
-  // request.on('error', (err) => {
-  //   console.log(err);
-  //   response.statusCode = 400;
-  //   response.end();
-  // });
 
   // Do some basic logging.
   //
@@ -70,7 +57,9 @@ module.exports = function(request, response) {
   if (request.method === 'GET') {
     sendResponse(response, {results: messages});
   } else if (request.method === 'POST') {
+    
     getData(request, function(data) {
+      data.createdAt = new Date().toLocaleString();
       messages.push(data);
       sendResponse(response, null, 201);
     });
@@ -110,7 +99,7 @@ module.exports = function(request, response) {
 
 };
 
-exports.sendResponse = sendResponse;
+module.exports.sendResponse = sendResponse;
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
 // are on different domains, for instance, your chat client.

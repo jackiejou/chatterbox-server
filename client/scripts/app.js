@@ -163,7 +163,9 @@ var app = {
 
     var $message = $('<br><span/>');
     $message.text(message.text).appendTo($chat);
-
+    
+    var $time = $('<br><span/>');
+    $time.text(message.createdAt).appendTo($chat);
     // Add the message to the UI
     app.$chats.append($chat);
 
